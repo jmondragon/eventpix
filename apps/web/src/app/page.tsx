@@ -294,6 +294,7 @@ export default function Home() {
 
             {subMode === 'login' && (
               <div className="w-full">
+                <p className="text-gray-400 mb-6">Create an event and invite guests.</p>
                 {/* Social Login Only Container if Password Disabled, or Mix */}
 
                 {passwordEnabled && (
