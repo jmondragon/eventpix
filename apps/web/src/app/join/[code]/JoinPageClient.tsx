@@ -180,7 +180,7 @@ export default function JoinPage() {
         try {
             let authData;
 
-            // If we are already logged in (e.g. as Guest), try to link first
+            // 1. Authenticate or Link
             if (pb.authStore.isValid && pb.authStore.model) {
                 try {
                     console.log("Attempting to link social account to guest session...");
@@ -189,32 +189,66 @@ export default function JoinPage() {
                     console.log("Account linked successfully.");
                 } catch (linkErr) {
                     console.warn("Link failed (likely account exists), falling back to switch.", linkErr);
-                    // Fallback: Account probably exists, so just log in as that user
                     authData = await pb.collection('users').authWithOAuth2({ provider: providerName });
                 }
             } else {
-                // Not logged in, standard auth
                 authData = await pb.collection('users').authWithOAuth2({ provider: providerName });
             }
 
-            // Sync Profile Data (Name) from Social Provider
-            if (authData?.meta?.name && pb.authStore.model) {
-                const currentName = pb.authStore.model.name;
-                const socialName = authData.meta.name;
+            // 2. Sync Profile Data (Name, Avatar, Email)
+            const meta = authData?.meta;
+            const user = pb.authStore.model;
 
-                // Update if name is missing, starts with Guest, or we just want to keep it in sync.
-                if (currentName !== socialName) {
-                    console.log(`Syncing profile name: ${currentName} -> ${socialName}`);
-                    await pb.collection('users').update(pb.authStore.model.id, {
-                        name: socialName
-                    });
+            if (meta && user) {
+                // A. Prepare Name & Avatar update
+                const formData = new FormData();
+                let hasUpdates = false;
+
+                // Name
+                if (meta.name && meta.name !== user.name) {
+                    formData.append('name', meta.name);
+                    hasUpdates = true;
+                }
+
+                // Avatar (only if we have a URL)
+                if (meta.avatarUrl) {
+                    try {
+                        const res = await fetch(meta.avatarUrl);
+                        if (res.ok) {
+                            const blob = await res.blob();
+                            formData.append('avatar', blob);
+                            hasUpdates = true;
+                        }
+                    } catch (fetchErr) {
+                        console.warn("Failed to fetch avatar from social provider", fetchErr);
+                    }
+                }
+
+                if (hasUpdates) {
+                    try {
+                        console.log("Syncing name/avatar...");
+                        await pb.collection('users').update(user.id, formData);
+                    } catch (updateErr) {
+                        console.error("Failed to update profile", updateErr);
+                    }
+                }
+
+                // B. Sync Email (Separate step to handle uniqueness constraints safely)
+                if (meta.email && meta.email !== user.email) {
+                    try {
+                        console.log(`Syncing email: ${user.email} -> ${meta.email}`);
+                        await pb.collection('users').update(user.id, {
+                            email: meta.email,
+                            emailVisibility: true,
+                        });
+                    } catch (emailErr) {
+                        console.warn("Could not sync email (probably already in use by another account)", emailErr);
+                    }
                 }
             }
 
             // Auth successful, now join
             if (event) {
-                // If not PIN required, go
-                // If PIN is required, we still need to enter it (stay on page)
                 if (event.join_mode !== 'pin') {
                     router.push(`/event/${event.id}`);
                 }
