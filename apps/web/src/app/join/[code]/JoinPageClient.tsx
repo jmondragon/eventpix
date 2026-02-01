@@ -24,7 +24,12 @@ export default function JoinPage() {
                 // We should probably just do a quick verify.
                 console.log("Verifying existing session...");
                 await pb.collection('users').authRefresh();
-                console.log("Existing session valid.");
+
+                if (!pb.authStore.model) {
+                    throw new Error("Token valid but user model missing");
+                }
+
+                console.log("Existing session valid. User:", pb.authStore.model.id);
                 setAuthStatus('success');
                 return;
             } catch (err) {
