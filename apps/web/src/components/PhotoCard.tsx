@@ -21,9 +21,6 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
     //    if (showControls) console.log("Controls Shown. Owner:", photo.owner, "Current:", currentUserId, "Match:", currentUserId === photo.owner);
     // }, [showControls]);
 
-    // Uncommenting for active debugging
-    console.log(`PhotoCard ${photo.id} render. Owner: ${photo.owner}, CurrentUser: ${currentUserId}, Match: ${currentUserId === photo.owner}`);
-
     const { enqueueSnackbar } = useSnackbar();
     const url = pb.files.getUrl(photo, photo.file);
     const isOwner = currentUserId && currentUserId === photo.owner;
