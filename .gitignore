@@ -26,6 +26,7 @@ Thumbs.db
 # Backend (PocketBase)
 backend/pocketbase
 backend/pb_data
+backend/pb_public
 !backend/pb_migrations
 
 # IDEs
