@@ -15,12 +15,10 @@ const AuthContext = createContext<AuthContextType>({} as any);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = useData();
-    const [isAuth, setIsAuth] = useState(data.getAuthStoreIsValid());
     const [user, setUser] = useState<User | null>(data.getUser());
 
     useEffect(() => {
         return data.onAuthChange((u) => {
-            setIsAuth(!!u);
             setUser(u);
         });
     }, [data]);

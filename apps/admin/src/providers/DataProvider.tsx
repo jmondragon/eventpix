@@ -1,6 +1,5 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import type { DataProvider as DataProviderType, Event, Photo, Invitation } from './types';
-import { PocketBaseProvider } from './pocketbase';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { Event, Photo, Invitation } from './types';
 import PocketBase from 'pocketbase';
 
 // Initialize PocketBase client
@@ -19,6 +18,7 @@ interface DataContextType {
     deleteEvent: (id: string) => Promise<void>;
     listPendingPhotos: () => Promise<Photo[]>;
     listEventPhotos: (eventId: string) => Promise<Photo[]>;
+    listApprovedPhotos: (eventId: string) => Promise<Photo[]>;
     deletePhoto: (id: string) => Promise<void>;
     updatePhotoStatus: (id: string, status: string) => Promise<Photo>;
     getPhotoUrl: (photo: Photo) => string;
@@ -50,7 +50,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<any>(pb.authStore.model);
 
     useEffect(() => {
-        return pb.authStore.onChange((token, model) => {
+        return pb.authStore.onChange((_token, model) => {
             setUser(model);
         });
     }, []);
@@ -111,6 +111,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             });
             return records as unknown as Photo[];
         },
+        listApprovedPhotos: async (eventId) => {
+            const records = await pb.collection('photos').getFullList({
+                filter: `event = "${eventId}" && status = "approved"`,
+                sort: '-created'
+            });
+            return records as unknown as Photo[];
+        },
         listPendingPhotos: async () => {
             const records = await pb.collection('photos').getFullList({
                 filter: `status = "pending"`,
@@ -137,7 +144,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         getAuthStoreIsValid: () => pb.authStore.isValid,
         getUser: () => pb.authStore.model,
         onAuthChange: (callback: (model: any) => void) => {
-            return pb.authStore.onChange((token, model) => {
+            return pb.authStore.onChange((_token, model) => {
                 callback(model);
             });
         },

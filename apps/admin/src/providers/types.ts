@@ -31,6 +31,7 @@ export interface Photo {
     status: 'pending' | 'approved' | 'rejected';
     expand?: {
         owner?: User;
+        event?: Event;
     };
     likes?: string[];
 }
@@ -41,6 +42,11 @@ export interface Invitation {
     updated: string;
     event: string;
     email: string;
+}
+
+export interface RealtimeEvent {
+    action: 'create' | 'update' | 'delete';
+    record: any;
 }
 
 export interface DataContextType {

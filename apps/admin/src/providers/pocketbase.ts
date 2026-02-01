@@ -1,7 +1,7 @@
 import PocketBase from 'pocketbase';
 import type { DataProvider, Event, Photo, RealtimeEvent, User } from './types';
 
-const PB_URL = '/'; // Use proxy in dev, or relative path in prod
+const PB_URL = import.meta.env.VITE_POCKETBASE_URL || '/'; // Use env var, proxy in dev, or relative path in prod
 
 export class PocketBaseProvider implements DataProvider {
     private pb: PocketBase;
@@ -29,7 +29,7 @@ export class PocketBaseProvider implements DataProvider {
     }
 
     onAuthChange(callback: (user: User | null) => void): () => void {
-        return this.pb.authStore.onChange((token, model) => {
+        return this.pb.authStore.onChange((_token, model) => {
             callback(model as User | null);
         });
     }
