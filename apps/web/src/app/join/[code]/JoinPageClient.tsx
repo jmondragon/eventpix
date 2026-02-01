@@ -13,12 +13,32 @@ export default function JoinPage() {
 
     const code = params.code as string;
 
-    const authenticating = useRef(false);
+    const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [authError, setAuthError] = useState('');
 
     const authenticateAnonymously = async () => {
-        if (pb.authStore.isValid || authenticating.current) return;
+        // If already valid, verify it's still good with the server
+        if (pb.authStore.isValid) {
+            try {
+                // If we are already loading, don't trigger again, but this check is lower down.
+                // We should probably just do a quick verify.
+                console.log("Verifying existing session...");
+                await pb.collection('users').authRefresh();
+                console.log("Existing session valid.");
+                setAuthStatus('success');
+                return;
+            } catch (err) {
+                console.warn("Existing session invalid or expired. Creating new guest session.", err);
+                pb.authStore.clear();
+                // Proceed to create new user below
+            }
+        }
 
-        authenticating.current = true;
+        // Prevent multiple simultaneous attempts
+        if (authStatus === 'loading') return;
+
+        setAuthStatus('loading');
+        setAuthError('');
         console.log("Starting anonymous auth...");
 
         try {
@@ -34,9 +54,11 @@ export default function JoinPage() {
             });
             await pb.collection('users').authWithPassword(email, password);
             console.log("Auth successful:", pb.authStore.model?.id);
-        } catch (err) {
+            setAuthStatus('success');
+        } catch (err: any) {
             console.error("Auth failed:", err);
-            authenticating.current = false; // Reset if failed so they can try again? Or maybe just failed.
+            setAuthStatus('error');
+            setAuthError("Failed to create guest session. Please try again.");
         }
     };
 
@@ -164,6 +186,13 @@ export default function JoinPage() {
     const handleJoin = async () => {
         if (!event) return;
 
+        // Ensure we are authenticated
+        if (authStatus !== 'success' && !pb.authStore.isValid) {
+            // Try one last time? Or showing error is better.
+            setAuthError("You must be signed in to join.");
+            return;
+        }
+
         // If PIN is required
         if (event.join_mode === 'pin') {
             if (!pin.trim()) {
@@ -233,12 +262,24 @@ export default function JoinPage() {
                     </div>
                 )}
 
+                {authStatus === 'error' && (
+                    <div className="bg-red-900/20 border border-red-900 p-3 rounded-lg text-red-500 text-sm mb-4">
+                        <p className="mb-2">{authError}</p>
+                        <button
+                            onClick={authenticateAnonymously}
+                            className="text-white underline text-xs font-bold"
+                        >
+                            Retry Connection
+                        </button>
+                    </div>
+                )}
+
                 <button
                     onClick={handleJoin}
-                    disabled={verifying}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition shadow-lg shadow-blue-900/20 active:scale-95 disabled:opacity-50"
+                    disabled={verifying || (authStatus !== 'success' && !pb.authStore.isValid)}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition shadow-lg shadow-blue-900/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {verifying ? 'Verifying...' : 'Continue as Guest'}
+                    {verifying ? 'Verifying...' : (authStatus === 'loading' ? 'Connecting...' : 'Continue as Guest')}
                 </button>
 
                 {(authProviders || []).length > 0 && (

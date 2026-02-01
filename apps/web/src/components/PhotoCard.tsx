@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSnackbar } from 'notistack';
 import { pb } from '@/lib/pocketbase';
 import dayjs from 'dayjs';
@@ -14,6 +14,16 @@ interface PhotoCardProps {
 }
 
 export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoCardProps) {
+    // Debug permissions
+    // console.log(`Photo ${ photo.id }: `, { isOwner, isHost, currentUserId, photoOwner: photo.owner, eventOwner: eventOwnerId });
+    // Detailed debug for long press issue
+    // useEffect(() => {
+    //    if (showControls) console.log("Controls Shown. Owner:", photo.owner, "Current:", currentUserId, "Match:", currentUserId === photo.owner);
+    // }, [showControls]);
+
+    // Uncommenting for active debugging
+    console.log(`PhotoCard ${photo.id} render. Owner: ${photo.owner}, CurrentUser: ${currentUserId}, Match: ${currentUserId === photo.owner}`);
+
     const { enqueueSnackbar } = useSnackbar();
     const url = pb.files.getUrl(photo, photo.file);
     const isOwner = currentUserId && currentUserId === photo.owner;
@@ -29,6 +39,11 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
     // Manage animation classes
     const [animationClass, setAnimationClass] = useState("animate-fade-in");
     const [highlight, setHighlight] = useState(false); // Keep highlight state for flash effect
+
+    // Mobile Interaction State
+    const [showControls, setShowControls] = useState(false);
+    const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+    const isLongPress = useRef(false);
 
     // Remove fade-in after it completes so it doesn't conflict with flash or restart
     useEffect(() => {
@@ -127,12 +142,52 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
         }
     };
 
+    const handleTouchStart = () => {
+        isLongPress.current = false;
+        longPressTimer.current = setTimeout(() => {
+            isLongPress.current = true;
+            setShowControls(true);
+            setHighlight(true); // Visual feedback
+            setTimeout(() => setHighlight(false), 200);
+        }, 500); // 500ms for long press
+    };
+
+    const handleTouchEnd = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+        }
+    };
+
     // Combining classes
     const finalClass = `mb-4 break-inside-avoid rounded-lg overflow-hidden shadow-lg bg-gray-800 relative group transition-all border border-transparent ${animationClass} ${highlight ? 'animate-flash' : ''} ${photo._isExiting ? 'animate-fade-out' : ''}`;
 
     return (
         <div className={finalClass}>
-            <div className="relative w-full">
+            <div
+                className="relative w-full"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onMouseDown={handleTouchStart}
+                onMouseUp={handleTouchEnd}
+                onMouseLeave={handleTouchEnd}
+                onClick={() => {
+                    if (isLongPress.current) {
+                        isLongPress.current = false;
+                        return;
+                    }
+                    if (showControls) setShowControls(false);
+                }}
+                onContextMenu={(e) => {
+                    // Prevent default context menu if we successfully triggered internal controls?
+                    // Or just let it be. Usually long press on mobile brings up context menu.
+                    // If we want to override, we should preventDefault.
+                    // Let's prevent it if controls are shown or about to be shown (timer active?)
+                    // Currently simply blocking it might be annoying if they want to save the image.
+                    // Let's only prevent it if we are in "control mode" or just rely on the UI overlay.
+                    // mobile browsers might still show context menu on long press.
+                    // e.preventDefault(); 
+                }}
+            >
                 {/* Fallback to standard img to debug URL/NextConfig issues */}
                 <img
                     src={url}
@@ -141,10 +196,11 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
                     loading="lazy"
                 />
 
-                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={`absolute top-2 right-2 flex gap-2 transition-opacity ${showControls ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     {canEdit && !isEditing && (
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setIsEditing(true);
                                 setCaption(photo.caption || '');
                             }}
@@ -158,7 +214,10 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
                     )}
                     {canDelete && !isEditing && (
                         <button
-                            onClick={handleDelete}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete();
+                            }}
                             className="bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-full backdrop-blur-sm"
                             title="Delete Photo"
                         >

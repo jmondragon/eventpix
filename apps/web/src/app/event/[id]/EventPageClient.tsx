@@ -46,7 +46,10 @@ export default function EventPage() {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('event', id);
-            formData.append('owner', getUser()?.id || '');
+            const userId = getUser()?.id;
+            if (userId) {
+                formData.append('owner', userId);
+            }
             formData.append('status', event?.approval_required ? 'pending' : 'approved');
             console.log(formData);
             await pb.collection('photos').create(formData);
@@ -68,6 +71,13 @@ export default function EventPage() {
     // Restoring missing fetch logic
     useEffect(() => {
         const loadEvent = async () => {
+            console.log("EventPage: Loading event...", id);
+            console.log("EventPage: Auth State:", {
+                isValid: pb.authStore.isValid,
+                model: pb.authStore.model,
+                token: pb.authStore.token?.substring(0, 10) + "..."
+            });
+
             try {
                 // Fetch event
                 const eventRecord = await pb.collection('events').getOne(id);
