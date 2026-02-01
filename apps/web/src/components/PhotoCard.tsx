@@ -39,8 +39,6 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
 
     // Mobile Interaction State
     const [showControls, setShowControls] = useState(false);
-    const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-    const isLongPress = useRef(false);
 
     // Remove fade-in after it completes so it doesn't conflict with flash or restart
     useEffect(() => {
@@ -139,21 +137,7 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
         }
     };
 
-    const handleTouchStart = () => {
-        isLongPress.current = false;
-        longPressTimer.current = setTimeout(() => {
-            isLongPress.current = true;
-            setShowControls(true);
-            setHighlight(true); // Visual feedback
-            setTimeout(() => setHighlight(false), 200);
-        }, 500); // 500ms for long press
-    };
 
-    const handleTouchEnd = () => {
-        if (longPressTimer.current) {
-            clearTimeout(longPressTimer.current);
-        }
-    };
 
     // Combining classes
     const finalClass = `mb-4 break-inside-avoid rounded-lg overflow-hidden shadow-lg bg-gray-800 relative group transition-all border border-transparent ${animationClass} ${highlight ? 'animate-flash' : ''} ${photo._isExiting ? 'animate-fade-out' : ''}`;
@@ -162,27 +146,13 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
         <div className={finalClass}>
             <div
                 className="relative w-full"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                onMouseDown={handleTouchStart}
-                onMouseUp={handleTouchEnd}
-                onMouseLeave={handleTouchEnd}
                 onClick={() => {
-                    if (isLongPress.current) {
-                        isLongPress.current = false;
-                        return;
+                    // Simple toggle on tap/click
+                    setShowControls(!showControls);
+                    if (!showControls) {
+                        setHighlight(true);
+                        setTimeout(() => setHighlight(false), 200);
                     }
-                    if (showControls) setShowControls(false);
-                }}
-                onContextMenu={(e) => {
-                    // Prevent default context menu if we successfully triggered internal controls?
-                    // Or just let it be. Usually long press on mobile brings up context menu.
-                    // If we want to override, we should preventDefault.
-                    // Let's prevent it if controls are shown or about to be shown (timer active?)
-                    // Currently simply blocking it might be annoying if they want to save the image.
-                    // Let's only prevent it if we are in "control mode" or just rely on the UI overlay.
-                    // mobile browsers might still show context menu on long press.
-                    // e.preventDefault(); 
                 }}
             >
                 {/* Fallback to standard img to debug URL/NextConfig issues */}
