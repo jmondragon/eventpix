@@ -199,6 +199,8 @@ export default function JoinPage() {
             const meta = authData?.meta;
             const user = pb.authStore.model;
 
+            console.log("Profile Sync Debug:", { meta, user });
+
             if (meta && user) {
                 // A. Prepare Name & Avatar update
                 const formData = new FormData();
@@ -206,28 +208,34 @@ export default function JoinPage() {
 
                 // Name
                 if (meta.name && meta.name !== user.name) {
+                    console.log(`Syncing name: ${user.name} -> ${meta.name}`);
                     formData.append('name', meta.name);
                     hasUpdates = true;
                 }
 
                 // Avatar (only if we have a URL)
                 if (meta.avatarUrl) {
+                    console.log("Found avatar URL:", meta.avatarUrl);
                     try {
                         const res = await fetch(meta.avatarUrl);
                         if (res.ok) {
                             const blob = await res.blob();
+                            console.log("Avatar blob fetched:", blob.size, blob.type);
                             formData.append('avatar', blob);
                             hasUpdates = true;
+                        } else {
+                            console.warn("Avatar fetch returned status:", res.status);
                         }
                     } catch (fetchErr) {
-                        console.warn("Failed to fetch avatar from social provider", fetchErr);
+                        console.warn("Failed to fetch avatar from social provider (likely CORS)", fetchErr);
                     }
                 }
 
                 if (hasUpdates) {
                     try {
-                        console.log("Syncing name/avatar...");
+                        console.log("Sending Profile Update (Name/Avatar)...");
                         await pb.collection('users').update(user.id, formData);
+                        console.log("Profile Update Success");
                     } catch (updateErr) {
                         console.error("Failed to update profile", updateErr);
                     }
@@ -241,6 +249,7 @@ export default function JoinPage() {
                             email: meta.email,
                             emailVisibility: true,
                         });
+                        console.log("Email Update Success");
                     } catch (emailErr) {
                         console.warn("Could not sync email (probably already in use by another account)", emailErr);
                     }
