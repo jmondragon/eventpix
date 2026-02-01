@@ -37,9 +37,13 @@ export default function Home() {
   const [error, setError] = useState('');
 
   // Reactive User State
-  const [currentUser, setCurrentUser] = useState(getUser());
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    // Initial fetch on mount (client-side only)
+    setCurrentUser(getUser());
+
+    // Subscribe to changes
     return pb.authStore.onChange(() => {
       setCurrentUser(getUser());
     });
