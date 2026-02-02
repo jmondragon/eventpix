@@ -42,10 +42,16 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         stopMediaStream();
 
         try {
+            const isLandscape = window.innerWidth > window.innerHeight;
             const constraints: MediaStreamConstraints = {
                 video: deviceId
                     ? { deviceId: { exact: deviceId } }
-                    : { facingMode: 'environment' }
+                    : {
+                        facingMode: 'environment',
+                        // Force aspect ratio preference based on current window orientation
+                        width: { ideal: isLandscape ? 1920 : 1080 },
+                        height: { ideal: isLandscape ? 1080 : 1920 }
+                    }
             };
 
             const stream = await navigator.mediaDevices.getUserMedia(constraints);

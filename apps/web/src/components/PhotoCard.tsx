@@ -254,7 +254,7 @@ export default function PhotoCard({ photo, currentUserId, eventOwnerId }: PhotoC
             {/* Delete Confirmation Modal */}
             {isDeleting && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-gray-900 p-6 rounded-xl w-full max-w-sm border border-gray-800 shadow-2xl animate-fade-in">
+                    <div className="bg-gray-900 p-6 rounded-xl w-full max-w-sm border border-gray-800 shadow-2xl">
                         <h2 className="text-xl font-bold text-white mb-2">Delete Photo?</h2>
                         <p className="text-gray-400 text-sm mb-6">Are you sure you want to delete this photo? This action cannot be undone.</p>
 
