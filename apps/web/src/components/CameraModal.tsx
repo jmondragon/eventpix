@@ -11,6 +11,7 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
     const streamRef = useRef<MediaStream | null>(null);
     const isMounted = useRef(true);
     const initRequestId = useRef(0);
+    const rotationRef = useRef(0);
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
     const [activeDeviceId, setActiveDeviceId] = useState<string>('');
     const [error, setError] = useState<string>('');
@@ -20,6 +21,37 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         isMounted.current = true;
         return () => {
             isMounted.current = false;
+        };
+    }, []);
+
+    // Track physical device orientation using accelerometer (fallback for UI lock)
+    useEffect(() => {
+        const handleOrientation = (event: DeviceOrientationEvent) => {
+            const { gamma } = event;
+            // Gamma is left/right tilt in degrees.
+            // Portrait: ~0
+            // Landscape Left (Home button right): ~ -90
+            // Landscape Right (Home button left): ~ 90
+
+            if (gamma === null) return;
+
+            if (gamma > 45) {
+                rotationRef.current = 90;
+            } else if (gamma < -45) {
+                rotationRef.current = -90;
+            } else {
+                rotationRef.current = 0;
+            }
+        };
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        return () => {
+            if (window.DeviceOrientationEvent) {
+                window.removeEventListener('deviceorientation', handleOrientation);
+            }
         };
     }, []);
 
@@ -80,9 +112,6 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         };
 
         window.addEventListener('orientationchange', handleResize);
-        // Sometimes resize fires on rotation too, but orientationchange is specific.
-        // On modern browsers screens.orientation.addEventListener('change', ...) is better but less supported?
-        // Let's stick to orientationchange or resize if height/width swaps.
 
         return () => {
             window.removeEventListener('orientationchange', handleResize);
@@ -124,13 +153,6 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         if (devices.length < 2) return;
 
         // Find current index and pick next
-        // Note: activeDeviceId might be empty if we used default constraint
-        // This is a simple toggle logic
-        // For robustness, better to track index. 
-        // Let's simplified assumption: toggle between first two or simple find logic.
-
-        // Better: just fetch current track settings or just blindly toggle between found devices
-        // For MVP, let's just cycle through device list
         const currentIndex = devices.findIndex(d => d.deviceId === activeDeviceId);
         const nextIndex = (currentIndex + 1) % devices.length;
         const nextDevice = devices[nextIndex];
@@ -148,12 +170,40 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
 
         if (!context) return;
 
-        // Set dimensions match video
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
 
-        // Draw
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Check if manual rotation is needed
+        // Only if stream is Portrait (h > w) and Physical Device is Landscape
+        const isStreamPortrait = videoHeight > videoWidth;
+        const physicalRotation = rotationRef.current;
+        const isPhysicalLandscape = Math.abs(physicalRotation) === 90;
+
+        let finalWidth = videoWidth;
+        let finalHeight = videoHeight;
+        let needsRotation = false;
+
+        if (isStreamPortrait && isPhysicalLandscape) {
+            needsRotation = true;
+            // Swap dimensions for the canvas to be landscape
+            finalWidth = videoHeight;
+            finalHeight = videoWidth;
+        }
+
+        canvas.width = finalWidth;
+        canvas.height = finalHeight;
+
+        if (needsRotation) {
+            // Translate to center
+            context.translate(finalWidth / 2, finalHeight / 2);
+            // Rotate matching physical orientation
+            context.rotate((physicalRotation * Math.PI) / 180);
+
+            // Draw original image centered
+            context.drawImage(video, -videoWidth / 2, -videoHeight / 2, videoWidth, videoHeight);
+        } else {
+            context.drawImage(video, 0, 0, finalWidth, finalHeight);
+        }
 
         // Convert to file
         canvas.toBlob((blob) => {
