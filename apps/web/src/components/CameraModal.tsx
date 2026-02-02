@@ -70,6 +70,25 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         }
     }, []);
 
+    // Restart camera on orientation change to ensure correct aspect ratio (Landscape/Portrait)
+    useEffect(() => {
+        const handleResize = () => {
+            // We debounce or just trigger. 
+            // Ideally we check if aspect ratio class changed?
+            // Simplest: just restart. The user won't rotate constantly.
+            startCamera(activeDeviceId || undefined);
+        };
+
+        window.addEventListener('orientationchange', handleResize);
+        // Sometimes resize fires on rotation too, but orientationchange is specific.
+        // On modern browsers screens.orientation.addEventListener('change', ...) is better but less supported?
+        // Let's stick to orientationchange or resize if height/width swaps.
+
+        return () => {
+            window.removeEventListener('orientationchange', handleResize);
+        };
+    }, [startCamera, activeDeviceId]);
+
     // Load available devices
     useEffect(() => {
         const getDevices = async () => {
