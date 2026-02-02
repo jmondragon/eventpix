@@ -154,41 +154,12 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
 
         if (!context) return;
 
-        // Detect orientation mismatch (User holding landscape, stream sending portrait)
-        const isLandscape = window.innerWidth > window.innerHeight;
-        const isStreamPortrait = video.videoWidth < video.videoHeight;
+        // Set dimensions match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-        let width = video.videoWidth;
-        let height = video.videoHeight;
-        let rotation = 0;
-
-        if (isLandscape && isStreamPortrait) {
-            // Need to rotate 90 degrees or -90 depending on device orientation
-            // Default to -90 (counter-clockwise) for standard "Home button right" landscape
-            // videoWidth < videoHeight, so we swap for canvas dimensions
-            width = video.videoHeight;
-            height = video.videoWidth;
-            rotation = -90;
-
-            // Check specific rotation if supported
-            if (window.orientation === 90 || (screen.orientation && screen.orientation.type === 'landscape-primary')) {
-                rotation = -90; // Top of phone is to the left. Sensor top is left. Rotate CCW.
-            } else if (window.orientation === -90 || (screen.orientation && screen.orientation.type === 'landscape-secondary')) {
-                rotation = 90;
-            }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Apply rotation
-        if (rotation !== 0) {
-            context.translate(width / 2, height / 2);
-            context.rotate((rotation * Math.PI) / 180);
-            context.drawImage(video, -video.videoWidth / 2, -video.videoHeight / 2, video.videoWidth, video.videoHeight);
-        } else {
-            context.drawImage(video, 0, 0, width, height);
-        }
+        // Draw
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // Convert to file
         canvas.toBlob((blob) => {

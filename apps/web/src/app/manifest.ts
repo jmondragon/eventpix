@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'EventPix AI',
+        name: 'EventPix',
         short_name: 'EventPix',
         description: 'AI-powered event photo sharing',
         start_url: '/',
