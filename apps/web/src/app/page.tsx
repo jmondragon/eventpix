@@ -195,7 +195,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen text-white">
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
         {/* Top Right Toggle */}
         <div className="absolute top-4 right-4 flex gap-4 items-center z-50">
@@ -216,12 +216,12 @@ export default function Home() {
         </div>
 
         <main className="flex flex-col items-center gap-8 text-center max-w-md w-full relative z-10">
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-white to-gray-500 bg-clip-text text-transparent">EventPix</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-8">EventPix</h1>
 
-          <div className="sliding-indicator-container w-72 h-16">
+          <div className="relative flex p-1 bg-gray-900 rounded-full border border-gray-800 w-72 h-16">
             {/* Sliding Indicator */}
             <div
-              className={`sliding-indicator w-[calc(50%-4px)] ${mode === 'guest' ? 'left-1 bg-blue-600 shadow-lg shadow-blue-900/40' : 'left-[calc(50%+3px)] bg-purple-600 shadow-lg shadow-purple-900/40'}`}
+              className={`absolute top-1 bottom-1 transition-all duration-300 ease-out rounded-full z-0 w-[calc(50%-4px)] ${mode === 'guest' ? 'left-1 bg-blue-600' : 'left-[calc(50%+3px)] bg-purple-600'}`}
             />
 
             <button
@@ -245,13 +245,13 @@ export default function Home() {
                 <input
                   type="text"
                   placeholder="Enter Event Code (e.g. WEDDING)"
-                  className="w-full p-4 rounded-lg bg-gray-900 border border-gray-800 text-center text-xl uppercase tracking-widest focus:ring-2 focus:ring-blue-600 focus:outline-none placeholder-gray-600"
+                  className="w-full p-3 rounded-lg bg-gray-900 border border-gray-800 text-center text-lg uppercase tracking-widest focus:ring-2 focus:ring-blue-600 focus:outline-none placeholder-gray-600"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <button
                   type="submit"
-                  className="w-full h-16 btn-premium bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-white text-lg font-black tracking-wider rounded-2xl shadow-premium glow-blue active:scale-[0.97]"
+                  className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold tracking-wider rounded-lg shadow-lg active:scale-[0.97]"
                 >
                   Join Event
                 </button>
@@ -269,7 +269,7 @@ export default function Home() {
                     <div
                       key={event.id}
                       onClick={() => router.push(`/event/${event.id}`)}
-                      className="glass hover:bg-gray-800/40 border border-white/5 rounded-xl p-4 cursor-pointer transition text-left group"
+                      className="bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg p-4 cursor-pointer transition text-left group"
                     >
                       <h3 className="font-bold text-lg group-hover:text-blue-400 transition-colors">{event.name}</h3>
                       <div className="flex justify-between mt-2 text-sm text-gray-500">
@@ -313,7 +313,7 @@ export default function Home() {
                           type="email"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
-                          className="w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all placeholder:text-gray-700"
+                          className="w-full bg-gray-900 border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all placeholder:text-gray-600"
                           required
                         />
                       </div>
@@ -323,14 +323,14 @@ export default function Home() {
                           type="password"
                           value={password}
                           onChange={e => setPassword(e.target.value)}
-                          className="w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all placeholder:text-gray-700"
+                          className="w-full bg-gray-900 border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all placeholder:text-gray-600"
                           required
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-16 btn-premium bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 text-white text-lg font-black tracking-wider rounded-2xl shadow-premium glow-purple mt-6 disabled:opacity-50 active:scale-[0.97]"
+                        className="w-full h-14 bg-purple-600 hover:bg-purple-700 text-white text-lg font-bold tracking-wider rounded-lg shadow-lg mt-6 disabled:opacity-50 active:scale-[0.97]"
                       >
                         {loading ? 'Signing in...' : 'Sign In'}
                       </button>
@@ -355,7 +355,7 @@ export default function Home() {
                           const isGoogle = p.name === 'google';
                           const isApple = p.name === 'apple';
 
-                          let buttonClass = "w-full font-bold py-4 px-8 rounded-xl transition flex items-center justify-center gap-3 active:scale-95 ";
+                          let buttonClass = "w-full font-bold py-3 px-6 rounded-lg transition flex items-center justify-center gap-3 active:scale-95 ";
                           if (isGoogle) {
                             buttonClass += "bg-white text-gray-900 hover:bg-gray-100 shadow-lg shadow-white/5";
                           } else if (isApple) {
@@ -398,7 +398,7 @@ export default function Home() {
                     <h2 className="text-xl font-bold ml-2">My Events</h2>
                     <button
                       onClick={() => setSubMode('create')}
-                      className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-xl shadow-lg shadow-purple-900/40 transition-all active:scale-95"
+                      className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-lg shadow-lg transition-all active:scale-95"
                     >
                       + New Event
                     </button>
@@ -408,10 +408,10 @@ export default function Home() {
                       <div
                         key={event.id}
                         onClick={() => router.push(`/event/${event.id}`)}
-                        className="glass hover:bg-white/5 border border-white/5 rounded-2xl p-5 flex justify-between items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] group"
+                        className="bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg p-4 flex justify-between items-center cursor-pointer transition-all group"
                       >
                         <div className="text-left">
-                          <div className="font-black text-lg group-hover:text-purple-400 transition-colors uppercase tracking-tight">{event.name}</div>
+                          <div className="font-bold text-lg group-hover:text-purple-400 transition-colors uppercase tracking-tight">{event.name}</div>
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">CODE: <span className="text-gray-300">{event.code}</span></div>
                         </div>
                         <div className="bg-purple-600/20 p-2 rounded-full group-hover:bg-purple-600/40 transition-colors">
@@ -429,7 +429,7 @@ export default function Home() {
               )}
 
               {subMode === 'create' && (
-                <form onSubmit={handleCreateEvent} className="space-y-4 text-left glass p-6 rounded-3xl border-white/5 shadow-2xl">
+                <form onSubmit={handleCreateEvent} className="space-y-4 text-left bg-gray-900 p-6 rounded-xl border border-gray-800 shadow-xl">
                   <div className="flex items-center gap-3 mb-8">
                     <button
                       type="button"
@@ -450,7 +450,7 @@ export default function Home() {
                         type="text"
                         value={newEventName}
                         onChange={e => setNewEventName(e.target.value)}
-                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all font-bold placeholder:text-gray-800"
+                        className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-bold placeholder:text-gray-600"
                         placeholder="e.g. Smith Wedding"
                         required
                       />
@@ -461,7 +461,7 @@ export default function Home() {
                         type="text"
                         value={newEventCode}
                         onChange={e => setNewEventCode(e.target.value)}
-                        className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all uppercase tracking-[0.2em] font-black placeholder:text-gray-800"
+                        className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all uppercase tracking-[0.2em] font-bold placeholder:text-gray-600"
                         placeholder="WEDDING2025"
                         required
                       />
@@ -473,7 +473,7 @@ export default function Home() {
                         <select
                           value={newVisibility}
                           onChange={(e) => setNewVisibility(e.target.value)}
-                          className="w-full bg-black/40 border border-white/5 text-gray-300 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all font-bold appearance-none cursor-pointer"
+                          className="w-full bg-black border border-gray-800 text-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-bold appearance-none cursor-pointer"
                         >
                           <option value="public">🌍 Public</option>
                           <option value="unlisted">🔗 Unlisted</option>
@@ -485,7 +485,7 @@ export default function Home() {
                         <select
                           value={newJoinMode}
                           onChange={(e) => setNewJoinMode(e.target.value)}
-                          className="w-full bg-black/40 border border-white/5 text-gray-300 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all font-bold appearance-none cursor-pointer"
+                          className="w-full bg-black border border-gray-800 text-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-bold appearance-none cursor-pointer"
                         >
                           <option value="open">✨ Open</option>
                           <option value="pin">🔢 PIN Code</option>
@@ -501,7 +501,7 @@ export default function Home() {
                           type="text"
                           value={newPin}
                           onChange={e => setNewPin(e.target.value)}
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all tracking-[0.5em] font-black text-center"
+                          className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all tracking-[0.5em] font-bold text-center"
                           placeholder="1234"
                           required
                         />
@@ -512,7 +512,7 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={creating}
-                    className="w-full h-16 btn-premium bg-white text-black text-lg font-black uppercase tracking-widest rounded-2xl shadow-premium mt-8 disabled:opacity-50 active:scale-[0.97] transition-all"
+                    className="w-full h-14 bg-white text-black text-lg font-bold uppercase tracking-widest rounded-lg shadow-lg mt-8 disabled:opacity-50 active:scale-[0.97] transition-all"
                   >
                     {creating ? 'Creating...' : 'Launch Event'}
                   </button>
