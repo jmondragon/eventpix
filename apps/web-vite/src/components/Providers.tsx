@@ -1,8 +1,4 @@
-'use client';
-
-import dynamic from 'next/dynamic';
 import { SnackbarProvider } from 'notistack';
-
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (

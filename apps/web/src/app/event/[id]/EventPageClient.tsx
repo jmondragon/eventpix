@@ -9,9 +9,10 @@ import UserProfile from '@/components/UserProfile';
 import CameraModal from '@/components/CameraModal';
 import QRCode from "react-qr-code";
 
-export default function EventPage() {
+export default function EventPage({ id: propId }: { id?: string }) {
     const params = useParams();
     const router = useRouter();
+    const id = propId || params.id as string;
     const { enqueueSnackbar } = useSnackbar();
     const [event, setEvent] = useState<any>(null);
     const [photos, setPhotos] = useState<any[]>([]);
@@ -31,7 +32,6 @@ export default function EventPage() {
     // Share State
     const [isSharing, setIsSharing] = useState(false);
 
-    const id = params.id as string;
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();

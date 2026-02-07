@@ -3,20 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
     "dayjs": "^1.11.19",
     "next": "16.1.6",
     "notistack": "^3.0.2",
+    "pocketbase": "^0.26.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-qr-code": "^2.0.18"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

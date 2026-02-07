@@ -5,7 +5,9 @@ export function generateStaticParams() {
 }
 
 export const dynamic = 'force-static';
+export const dynamicParams = false;
 
-export default function Page() {
-    return <JoinPageClient />;
+export default async function Page({ params }: { params: Promise<{ code: string }> }) {
+    const { code } = await params;
+    return <JoinPageClient code={code} />;
 }

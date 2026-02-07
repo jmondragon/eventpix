@@ -5,7 +5,9 @@ export function generateStaticParams() {
 }
 
 export const dynamic = 'force-static';
+export const dynamicParams = false;
 
-export default function Page() {
-    return <SlideshowPageClient />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    return <SlideshowPageClient id={id} />;
 }

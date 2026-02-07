@@ -6,10 +6,10 @@ import { pb } from '@/lib/pocketbase';
 import Image from 'next/image';
 
 
-export default function SlideshowPage() {
+export default function SlideshowPage({ id: propId }: { id?: string }) {
     const params = useParams();
     const router = useRouter();
-    const id = params.id as string;
+    const id = propId || (params.id as string);
 
     const [photos, setPhotos] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
