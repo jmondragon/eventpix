@@ -93,58 +93,28 @@ export default function UserProfile() {
                         <p className="text-white font-medium truncate">{user.email}</p>
                     </div>
 
-                    <div className="p-2">
-                        {isEditing ? (
-                            <div className="p-2 space-y-2">
-                                <label className="text-xs text-gray-400">Display Name</label>
-                                <input
-                                    type="text"
-                                    value={newName}
-                                    onChange={(e) => setNewName(e.target.value)}
-                                    className="w-full bg-black border border-gray-700 rounded p-2 text-white text-sm focus:border-blue-500 focus:outline-none"
-                                    autoFocus
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                                />
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setIsEditing(false)}
-                                        className="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-xs py-1.5 rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSave}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs py-1.5 rounded"
-                                    >
-                                        Save
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => {
-                                    setNewName(user.name || '');
-                                    setIsEditing(true);
-                                }}
-                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 hover:text-white text-sm transition flex items-center gap-2"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Change Name
-                            </button>
-                        )}
+                    <button
+                        onClick={() => {
+                            setIsOpen(false);
+                            router.push('/profile');
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 hover:text-white text-sm transition flex items-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profile
+                    </button>
 
-                        <button
-                            onClick={handleLogout}
-                            className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-900/20 text-red-400 hover:text-red-300 text-sm transition mt-1 flex items-center gap-2"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Sign Out
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-900/20 text-red-400 hover:text-red-300 text-sm transition mt-1 flex items-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                    </button>
                 </div>
             )}
         </div>
