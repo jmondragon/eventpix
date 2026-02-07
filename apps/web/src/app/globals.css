@@ -105,13 +105,7 @@
     }
 }
 
-/* Ionic Variables Overrides */
-:root {
-    --ion-background-color: #000000;
-    --ion-text-color: #ffffff;
-}
-
-/* Ensure body occupies full height and scrolls properly with IonApp */
+/* Ensure body occupies full height */
 body {
     background-color: #000000;
     color: #ffffff;
