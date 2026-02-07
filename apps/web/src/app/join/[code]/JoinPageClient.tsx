@@ -259,6 +259,12 @@ export default function JoinPage({ code: propCode }: { code?: string }) {
             // Auth successful, now join
             if (event) {
                 if (event.join_mode !== 'pin') {
+                    // Track join (open/invite modes that auto-succeed via OAuth)
+                    const joinedEvents = JSON.parse(localStorage.getItem('joined_events') || '[]');
+                    if (!joinedEvents.includes(event.id)) {
+                        joinedEvents.push(event.id);
+                        localStorage.setItem('joined_events', JSON.stringify(joinedEvents));
+                    }
                     router.push(`/event/${event.id}`);
                 }
             }
@@ -300,6 +306,12 @@ export default function JoinPage({ code: propCode }: { code?: string }) {
 
                 if (records.items.length > 0) {
                     // Success!
+                    // Track join
+                    const joinedEvents = JSON.parse(localStorage.getItem('joined_events') || '[]');
+                    if (!joinedEvents.includes(event.id)) {
+                        joinedEvents.push(event.id);
+                        localStorage.setItem('joined_events', JSON.stringify(joinedEvents));
+                    }
                     router.push(`/event/${event.id}`);
                 } else {
                     setPinError('Incorrect PIN');
@@ -312,6 +324,12 @@ export default function JoinPage({ code: propCode }: { code?: string }) {
             }
         } else {
             // Open event
+            // Track join
+            const joinedEvents = JSON.parse(localStorage.getItem('joined_events') || '[]');
+            if (!joinedEvents.includes(event.id)) {
+                joinedEvents.push(event.id);
+                localStorage.setItem('joined_events', JSON.stringify(joinedEvents));
+            }
             router.push(`/event/${event.id}`);
         }
     };
