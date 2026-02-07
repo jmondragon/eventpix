@@ -279,7 +279,7 @@ export default function Home() {
                   {publicEvents.map(event => (
                     <div
                       key={event.id}
-                      onClick={() => router.push(`/event/${event.id}`)}
+                      onClick={() => router.push(`/join/${event.code}`)}
                       className="bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg p-4 cursor-pointer transition text-left group"
                     >
                       <h3 className="font-bold text-lg group-hover:text-blue-400 transition-colors">{event.name}</h3>
