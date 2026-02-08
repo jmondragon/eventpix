@@ -12,6 +12,8 @@ import { useAuth } from './providers/AuthProvider';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import Dashboard from './pages/Dashboard';
+import MembershipPage from './pages/MembershipPage';
+import SettingsPage from './pages/SettingsPage';
 
 // function Dashboard() {
 //   return <Text>Dashboard Content</Text>;
@@ -35,6 +37,8 @@ function App() {
           <Route path="/events/new" element={<EventsNew />} />
           <Route path="/events/:id" element={<EventDetails />} />
           <Route path="/moderation" element={<ModerationQueue />} />
+          <Route path="/membership" element={<MembershipPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
         {/* Slideshow outside of AppLayout (fullscreen) */}
         <Route path="/events/:id/slideshow" element={<Slideshow />} />

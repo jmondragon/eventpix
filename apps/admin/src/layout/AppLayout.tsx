@@ -14,7 +14,7 @@ export function AppLayout() {
         { icon: IconDashboard, label: 'Dashboard', to: '/' },
         { icon: IconPhoto, label: 'Events', to: '/events' },
         { icon: IconGavel, label: 'Moderation', to: '/moderation' },
-        { icon: IconUsers, label: 'Memberships', to: '/memberships' },
+        { icon: IconUsers, label: 'Membership', to: '/membership' },
         { icon: IconSettings, label: 'Settings', to: '/settings' },
     ];
 
