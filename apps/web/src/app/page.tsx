@@ -12,6 +12,15 @@ export default function Home() {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
+  // Background State
+  const COVERS = [
+    '/covers/pexels-beige-media-2148596893-32538883.jpg',
+    '/covers/pexels-jibarofoto-3689547.jpg',
+    '/covers/al-elmes-ULHxWq8reao-unsplash.jpg',
+    '/covers/noiseporn-JNuKyKXLh8U-unsplash.jpg'
+  ];
+  const [currentCoverIndex, setCurrentCoverIndex] = useState(0);
+
   // View State
   const [mode, setMode] = useState<'guest' | 'host'>('guest');
   const [subMode, setSubMode] = useState<'login' | 'dashboard' | 'create'>('login');
@@ -45,12 +54,21 @@ export default function Home() {
 
   useEffect(() => {
     // Initial fetch on mount (client-side only)
+    setCurrentCoverIndex(0); // Ensure start
     setCurrentUser(getUser());
 
     // Subscribe to changes
     return pb.authStore.onChange(() => {
       setCurrentUser(getUser());
     });
+  }, []);
+
+  // Background Rotation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCoverIndex((prev) => (prev + 1) % COVERS.length);
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   // Initial Auth Check and Providers
@@ -274,12 +292,19 @@ export default function Home() {
 
         </div>
 
-        <div className="fixed inset-0 -z-10">
-          <img
-            src="/backdrop-landscape.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            alt="EventPix Background"
-          />
+        <div className="fixed inset-0 -z-10 bg-black">
+          {COVERS.map((cover, index) => (
+            <div
+              key={cover}
+              className={`absolute inset-0 transition-opacity duration-5000 ease-in-out ${index === currentCoverIndex ? 'opacity-100' : 'opacity-0'}`}
+            >
+              <img
+                src={cover}
+                className="absolute inset-0 w-full h-full object-cover"
+                alt={`Background ${index + 1}`}
+              />
+            </div>
+          ))}
           <div className="absolute inset-0 bg-black/70" />
         </div>
 
