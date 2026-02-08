@@ -368,8 +368,13 @@ export default function EventPage({ id: propId }: { id?: string }) {
                     </button>
                 </div>
 
-                {/* Center: Title (Absolute) */}
-                <div className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-center z-10 pointer-events-none px-20">
+                {/* Mobile: Title (Left Aligned, truncated) */}
+                <div className="flex-1 min-w-0 mx-2 md:hidden">
+                    <h1 className="text-lg font-bold text-white truncate text-left">{event.name}</h1>
+                </div>
+
+                {/* Desktop: Title (Absolute Center) - Hidden on mobile */}
+                <div className="absolute inset-x-0 top-0 bottom-0 hidden md:flex items-center justify-center z-10 pointer-events-none px-20">
                     <h1 className="text-xl font-bold text-white text-center truncate">{event.name}</h1>
                 </div>
 
