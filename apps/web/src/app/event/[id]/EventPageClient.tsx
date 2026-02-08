@@ -6,8 +6,8 @@ import { pb, isAuthenticated, getUser } from '@/lib/pocketbase';
 import { useSnackbar } from 'notistack';
 import PhotoCard from '@/components/PhotoCard';
 import UserProfile from '@/components/UserProfile';
-import CameraModal from '@/components/CameraModal';
 import QRCode from "react-qr-code";
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 export default function EventPage({ id: propId }: { id?: string }) {
     const params = useParams();
@@ -20,7 +20,6 @@ export default function EventPage({ id: propId }: { id?: string }) {
     const [error, setError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
-    const [showCamera, setShowCamera] = useState(false);
 
     // Edit State
     const [isEditingEvent, setIsEditingEvent] = useState(false);
@@ -43,8 +42,26 @@ export default function EventPage({ id: propId }: { id?: string }) {
         await uploadFiles(Array.from(files));
     };
 
-    const handleCameraCapture = async (file: File) => {
-        await uploadFiles([file]);
+    const handleCameraClick = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: false,
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Camera
+            });
+
+            if (image.webPath) {
+                // Convert to File object
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], `capture-${Date.now()}.${image.format}`, { type: `image/${image.format}` });
+                await uploadFiles([file]);
+            }
+        } catch (err) {
+            console.error("Camera capture failed", err);
+            // User cancelled or error
+        }
     };
 
     const uploadFiles = async (files: File[]) => {
@@ -420,7 +437,7 @@ export default function EventPage({ id: propId }: { id?: string }) {
 
                 {/* Primary: Camera */}
                 <button
-                    onClick={() => setShowCamera(true)}
+                    onClick={handleCameraClick}
                     disabled={uploading}
                     className="bg-blue-600 hover:bg-blue-500 text-white rounded-full p-4 shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Take Photo"
@@ -436,13 +453,7 @@ export default function EventPage({ id: propId }: { id?: string }) {
                 </button>
             </div>
 
-            {/* Camera Modal */}
-            {showCamera && (
-                <CameraModal
-                    onCapture={handleCameraCapture}
-                    onClose={() => setShowCamera(false)}
-                />
-            )}
+
 
             {/* Edit Modal */}
             {isEditingEvent && (
