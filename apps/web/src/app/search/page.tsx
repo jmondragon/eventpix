@@ -15,23 +15,26 @@ export default function SearchPage() {
         const fetchEvents = async () => {
             setLoading(true);
             try {
-                // Build filter
-                // Always public
+                // Base filter: Always public
                 let filter = 'visibility = "public"';
+                let sort = 'start_date'; // Ascending by default (upcoming first)
+                let perPage = 50;
 
                 // If query, add name filter
                 if (query.trim()) {
                     filter += ` && name ~ "${query.trim()}"`;
+                    sort = '-start_date'; // Show newest/recent first when searching
                 } else {
-                    // If no query, maybe show only upcoming? 
-                    // "next few public events listed"
-                    // filter += ` && start_date >= "${new Date().toISOString()}"`; 
-                    // actually let's just show all public for now, sorted by start_date
+                    // Default view: Upcoming Public Events
+                    // Filter for future events
+                    filter += ` && start_date >= "${new Date().toISOString()}"`;
+                    // Limit to next 5
+                    perPage = 5;
                 }
 
-                const result = await pb.collection('events').getList(1, 50, {
+                const result = await pb.collection('events').getList(1, perPage, {
                     filter: filter,
-                    sort: '-start_date,-created',
+                    sort: sort, // ASC for upcoming
                 });
 
                 setEvents(result.items);
@@ -61,7 +64,7 @@ export default function SearchPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <h1 className="text-xl font-bold">Search Events</h1>
+                <h1 className="text-xl font-bold">Public Events</h1>
             </header>
 
             {/* Search Bar */}
@@ -73,7 +76,7 @@ export default function SearchPage() {
                 </div>
                 <input
                     type="text"
-                    placeholder="Search by event name..."
+                    placeholder="Find public event name..."
                     className="w-full bg-gray-900 border border-gray-800 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all text-lg placeholder-gray-600"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -107,7 +110,7 @@ export default function SearchPage() {
                     ))
                 ) : (
                     <div className="text-center text-gray-500 py-12">
-                        {query ? 'No events found matching your search.' : 'No public events found.'}
+                        {query ? 'No events found matching your search.' : 'No upcoming public events found.'}
                     </div>
                 )}
             </div>

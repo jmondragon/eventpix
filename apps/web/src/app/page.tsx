@@ -68,21 +68,29 @@ export default function Home() {
   const [typedText, setTypedText] = useState('');
   const [wordIndex, setWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const WORDS = [
-    'wedding',
-    'birthday party',
-    'family reunion',
-    'holiday party',
-    'baby shower',
-    'graduation',
-    'conference',
-    'company retreat',
-    'music festival',
-    'road trip'
-  ];
+  const [words] = useState(() => {
+    const events = [
+      'wedding',
+      'birthday party',
+      'family reunion',
+      'holiday party',
+      'baby shower',
+      'graduation',
+      'conference',
+      'company retreat',
+      'music festival',
+      'road trip'
+    ];
+    // Fisher-Yates shuffle
+    for (let i = events.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [events[i], events[j]] = [events[j], events[i]];
+    }
+    return events;
+  });
 
   useEffect(() => {
-    const currentWord = WORDS[wordIndex % WORDS.length];
+    const currentWord = words[wordIndex % words.length];
     const typeSpeed = isDeleting ? 50 : 150;
     const pauseTime = 2000;
 
@@ -477,7 +485,7 @@ export default function Home() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  Search Public Events
+                  Find Public Events
                 </button>
               </div>
             </>
