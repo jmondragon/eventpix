@@ -31,6 +31,9 @@ export default function Home() {
   const [newVisibility, setNewVisibility] = useState('private');
   const [newJoinMode, setNewJoinMode] = useState('open');
   const [newPin, setNewPin] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newStartDate, setNewStartDate] = useState('');
+  const [newEndDate, setNewEndDate] = useState('');
   const [creating, setCreating] = useState(false);
 
   // Status State
@@ -211,7 +214,10 @@ export default function Home() {
         approval_required: false,
         visibility: newVisibility,
         join_mode: newJoinMode,
-        pin: newJoinMode === 'pin' ? newPin : ''
+        pin: newJoinMode === 'pin' ? newPin : '',
+        description: newDescription,
+        start_date: newStartDate ? new Date(newStartDate).toISOString() : '',
+        end_date: newEndDate ? new Date(newEndDate).toISOString() : '',
       });
       // Refresh list and go back
       await fetchMyEvents();
@@ -219,6 +225,9 @@ export default function Home() {
       setNewEventName('');
       setNewEventCode('');
       setNewPin('');
+      setNewDescription('');
+      setNewStartDate('');
+      setNewEndDate('');
     } catch (err) {
       console.error(err);
       enqueueSnackbar("Failed to create event. Code might be taken.", { variant: 'error' });
@@ -517,6 +526,37 @@ export default function Home() {
                         placeholder="WEDDING2025"
                         required
                       />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest block mb-2 ml-1">Description</label>
+                      <textarea
+                        value={newDescription}
+                        onChange={e => setNewDescription(e.target.value)}
+                        className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-medium placeholder:text-gray-600 min-h-[100px]"
+                        placeholder="Event details..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest block mb-2 ml-1">Start Date</label>
+                        <input
+                          type="datetime-local"
+                          value={newStartDate}
+                          onChange={e => setNewStartDate(e.target.value)}
+                          className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-medium text-white placeholder-gray-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest block mb-2 ml-1">End Date</label>
+                        <input
+                          type="datetime-local"
+                          value={newEndDate}
+                          onChange={e => setNewEndDate(e.target.value)}
+                          className="w-full bg-black border border-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all font-medium text-white placeholder-gray-600"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

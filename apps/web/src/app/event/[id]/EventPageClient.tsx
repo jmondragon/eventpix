@@ -9,6 +9,14 @@ import UserProfile from '@/components/UserProfile';
 import QRCode from "react-qr-code";
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
+// Helper for datetime-local input
+const toLocalISO = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+};
+
 export default function EventPage({ id: propId }: { id?: string }) {
     const params = useParams();
     const router = useRouter();
@@ -27,6 +35,9 @@ export default function EventPage({ id: propId }: { id?: string }) {
     const [editVisibility, setEditVisibility] = useState('public');
     const [editJoinMode, setEditJoinMode] = useState('open');
     const [editPin, setEditPin] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editStartDate, setEditStartDate] = useState('');
+    const [editEndDate, setEditEndDate] = useState('');
 
     // Share State
     const [isSharing, setIsSharing] = useState(false);
@@ -176,6 +187,9 @@ export default function EventPage({ id: propId }: { id?: string }) {
                 setEditVisibility(eventRecord.visibility);
                 setEditJoinMode(eventRecord.join_mode);
                 setEditPin(eventRecord.pin || '');
+                setEditDescription(eventRecord.description || '');
+                setEditStartDate(toLocalISO(eventRecord.start_date));
+                setEditEndDate(toLocalISO(eventRecord.end_date));
 
                 // Fetch photos
                 const photoRecords = await pb.collection('photos').getFullList({
@@ -282,13 +296,19 @@ export default function EventPage({ id: propId }: { id?: string }) {
                 visibility: editVisibility,
                 join_mode: editJoinMode,
                 pin: editPin,
+                description: editDescription,
+                start_date: editStartDate ? new Date(editStartDate).toISOString() : '',
+                end_date: editEndDate ? new Date(editEndDate).toISOString() : '',
             });
             setEvent((prev: any) => ({
                 ...prev,
                 name: editEventName,
                 visibility: editVisibility,
                 join_mode: editJoinMode,
-                pin: editJoinMode === 'pin' ? editPin : ''
+                pin: editJoinMode === 'pin' ? editPin : '',
+                description: editDescription,
+                start_date: editStartDate ? new Date(editStartDate).toISOString() : '',
+                end_date: editEndDate ? new Date(editEndDate).toISOString() : '',
             }));
             setIsEditingEvent(false);
             enqueueSnackbar("Event updated", { variant: 'success' });
@@ -338,19 +358,23 @@ export default function EventPage({ id: propId }: { id?: string }) {
     return (
         <div className="min-h-screen bg-gray-950 pb-20">
             {/* Header */}
-            <header className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 p-4 flex justify-between items-center">
-                <div className="w-8">
-                    {/* Placeholder for back button if needed */}
-                    <button onClick={() => router.push('/')} className="text-gray-400 hover:text-white">
+            <header className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 p-4 h-16 relative flex items-center justify-between">
+                {/* Left: Back Button */}
+                <div className="w-8 z-20 relative">
+                    <button onClick={() => router.push('/')} className="text-gray-400 hover:text-white flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7" />
                         </svg>
                     </button>
                 </div>
-                <h1 className="text-xl font-bold text-white text-center truncate px-2">{event.name}</h1>
 
+                {/* Center: Title (Absolute) */}
+                <div className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-center z-10 pointer-events-none px-20">
+                    <h1 className="text-xl font-bold text-white text-center truncate">{event.name}</h1>
+                </div>
 
-                <div className="flex justify-end gap-2 items-center">
+                {/* Right: Actions */}
+                <div className="flex justify-end gap-2 items-center z-20 relative">
                     <button
                         onClick={() => setIsSharing(true)}
                         className="text-gray-400 hover:text-white p-2"
@@ -377,6 +401,9 @@ export default function EventPage({ id: propId }: { id?: string }) {
                                 setEditVisibility(event.visibility || 'public');
                                 setEditJoinMode(event.join_mode || 'open');
                                 setEditPin(event.pin || '');
+                                setEditDescription(event.description || '');
+                                setEditStartDate(toLocalISO(event.start_date));
+                                setEditEndDate(toLocalISO(event.end_date));
                                 setIsEditingEvent(true);
                             }}
                             className="text-gray-400 hover:text-white p-2"
@@ -390,6 +417,27 @@ export default function EventPage({ id: propId }: { id?: string }) {
                     <UserProfile />
                 </div>
             </header>
+
+            {/* Event Info */}
+            {(event.description || event.start_date || event.end_date) && (
+                <div className="px-4 pt-6 text-center max-w-2xl mx-auto">
+                    {event.description && <p className="text-gray-300 mb-3 whitespace-pre-wrap">{event.description}</p>}
+                    {(event.start_date || event.end_date) && (
+                        <div className="flex justify-center flex-wrap gap-4 text-xs text-gray-500 font-bold uppercase tracking-widest">
+                            {event.start_date && (
+                                <span>
+                                    Starts: {new Date(event.start_date).toLocaleDateString()} {new Date(event.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                            {event.end_date && (
+                                <span>
+                                    Ends: {new Date(event.end_date).toLocaleDateString()} {new Date(event.end_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Grid */}
             <main className="p-4">
@@ -470,6 +518,36 @@ export default function EventPage({ id: propId }: { id?: string }) {
                                     className="w-full bg-gray-800 text-white border border-gray-700 rounded p-3 focus:outline-none focus:border-purple-500"
                                     autoFocus
                                 />
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-gray-400 block mb-1">Description</label>
+                                <textarea
+                                    value={editDescription}
+                                    onChange={(e) => setEditDescription(e.target.value)}
+                                    className="w-full bg-gray-800 text-white border border-gray-700 rounded p-3 focus:outline-none focus:border-purple-500 min-h-[100px]"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs text-gray-400 block mb-1">Start Date</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={editStartDate}
+                                        onChange={(e) => setEditStartDate(e.target.value)}
+                                        className="w-full bg-gray-800 text-white border border-gray-700 rounded p-3 focus:outline-none focus:border-purple-500 text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-400 block mb-1">End Date</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={editEndDate}
+                                        onChange={(e) => setEditEndDate(e.target.value)}
+                                        className="w-full bg-gray-800 text-white border border-gray-700 rounded p-3 focus:outline-none focus:border-purple-500 text-sm"
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
